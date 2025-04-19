@@ -1,0 +1,15 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+vendor/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Sensitive files
+.env
