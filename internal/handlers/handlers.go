@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"log" // Import the log package
+	"log"
 	"net/http"
 )
 
@@ -12,11 +12,10 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
 
 	if data == nil {
-		return // Don't encode nil data
+		return
 	}
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		// Log the error internally, but send a generic message to the client
 		log.Printf("Error encoding JSON response: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

@@ -2,24 +2,59 @@
 
 pipeline {
     agent any
+    
+    environment {
+        DOCKER_IMAGE = 'my-app'
+        DOCKER_TAG = "v${BUILD_NUMBER}"
+        DOCKER_FULL_IMAGE = "${DOCKER_IMAGE}:${DOCKER_TAG}"
+    }
+    
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building...'
-                // Add your build steps here
+                checkout scm
             }
         }
-        stage('Test') {
+        
+        stage('Build Docker Image') {
             steps {
-                echo 'Testing...'
-                // Add your test steps here
+                script {
+                    sh "docker build -t ${DOCKER_FULL_IMAGE} ."
+                }
             }
         }
-        stage('Deploy') {
+        
+        stage('Push to Registry') {
             steps {
-                echo 'Deploying...'
-                // Add your deployment steps here
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Login to Docker Hub
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        
+                        // Tag and push the image
+                        sh "docker tag ${DOCKER_FULL_IMAGE} ${DOCKER_USERNAME}/${DOCKER_FULL_IMAGE}"
+                        sh "docker push ${DOCKER_USERNAME}/${DOCKER_FULL_IMAGE}"
+                    }
+                }
             }
+        }
+        
+    }
+    
+    post {
+        always {
+            script {
+                // Clean up Docker images
+                sh "docker rmi ${DOCKER_FULL_IMAGE} || true"
+                // Clean workspace
+                cleanWs()
+            }
+        }
+        success {
+            echo 'Docker CI Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Docker CI Pipeline failed!'
         }
     }
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/moabdelazem/automate-jenkins/internal/server" // Adjust import path based on your go.mod module name
+	"github.com/moabdelazem/automate-jenkins/internal/server"
 )
 
 func main() {
@@ -12,6 +12,6 @@ func main() {
 
 	log.Println("Starting server on :8000")
 	if err := http.ListenAndServe(":8000", router); err != nil {
-		log.Fatalf("Could not start server: %s\n", err) // Use log.Fatalf for fatal errors
+		log.Fatalf("Could not start server: %s\n", err)
 	}
 }
